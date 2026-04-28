@@ -39,8 +39,6 @@ jobs:
                 --exclude='.gitignore' \
                 --exclude='README.md' \
                 --exclude='.github/' \
-                --exclude='bbwd-styles.css' \
-                --delete \
                 . svn_repo/trunk/
 
       - name: Sync assets folder
