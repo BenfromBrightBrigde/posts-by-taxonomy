@@ -11,15 +11,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install SVN
         run: sudo apt-get install -y subversion
 
-      - name: Extract version from plugin file
+      - name: Extract version from tag
+        id: version
         run: |
-          VERSION=$(sed -n 's/^ \* Version:[[:space:]]*//p' posts-by-taxonomy.php | head -n1)
+          VERSION=${GITHUB_REF#refs/tags/}
           echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Checkout WordPress.org SVN
@@ -32,21 +31,27 @@ jobs:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
 
-      - name: Sync plugin files to trunk
+      - name: Copy files to SVN trunk
         run: |
-          rsync -r --exclude='.git*' \
-                --exclude='assets/' \
-                --exclude='.gitignore' \
-                --exclude='README.md' \
-                --exclude='.github/' \
-                . svn_repo/trunk/
-
-      - name: Sync assets folder
-        run: |
-          mkdir -p svn_repo/assets
+          # Remove old trunk content
+          cd svn_repo/trunk
+          svn status | grep '^!' | awk '{print $2}' | xargs -r svn rm --force
+          cd ../..
+          
+          # Copy new files
+          cp posts-by-taxonomy.php svn_repo/trunk/
+          cp readme.txt svn_repo/trunk/
+          cp license.txt svn_repo/trunk/
+          cp index.php svn_repo/trunk/
+          
+          # Copy assets if they exist
           if [ -d "assets" ]; then
-            rsync -r assets/ svn_repo/assets/
+            cp -r assets/* svn_repo/assets/ 2>/dev/null || true
           fi
+          
+          # Add all new files
+          cd svn_repo
+          svn add --force . --auto-props --parents -q 2>/dev/null || true
 
       - name: Create SVN tag
         run: |
@@ -56,12 +61,7 @@ jobs:
       - name: Commit to SVN
         run: |
           cd svn_repo
-          svn add --force . --auto-props --parents -q 2>/dev/null || true
-          svn status | grep '^!' | awk '{print $2}' | xargs -r svn rm --force
           svn commit -m "Deploy version ${{ env.PLUGIN_VERSION }}" \
-            --username $SVN_USERNAME \
-            --password $SVN_PASSWORD \
+            --username ${{ secrets.SVN_USERNAME }} \
+            --password ${{ secrets.SVN_PASSWORD }} \
             --no-auth-cache
-        env:
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
