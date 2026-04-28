@@ -1,0 +1,69 @@
+name: Deploy to WordPress.org SVN
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install SVN
+        run: sudo apt-get install -y subversion
+
+      - name: Extract version from plugin file
+        id: version
+        run: |
+          VERSION=$(grep -m 1 "Version:" posts-by-taxonomy.php | awk '{print $2}')
+          echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Checkout WordPress.org SVN
+        run: |
+          svn checkout --depth=immediates "https://plugins.svn.wordpress.org/posts-by-taxonomy/" svn_repo
+          cd svn_repo
+          svn update trunk --set-depth=infinity
+          svn update --set-depth=infinity tags
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+
+      - name: Sync plugin files to trunk
+        run: |
+          rsync -r --exclude='.git*' \
+                --exclude='assets/' \
+                --exclude='.gitignore' \
+                --exclude='README.md' \
+                --exclude='.github/' \
+                --delete \
+                . svn_repo/trunk/
+
+      - name: Sync assets folder
+        run: |
+          mkdir -p svn_repo/assets
+          if [ -d "assets" ]; then
+            rsync -r assets/ svn_repo/assets/
+          fi
+
+      - name: Create SVN tag
+        run: |
+          cd svn_repo
+          svn cp trunk tags/${{ env.PLUGIN_VERSION }}
+
+      - name: Commit to SVN
+        run: |
+          cd svn_repo
+          svn add --force . --auto-props --parents -q 2>/dev/null || true
+          svn status | grep '^!' | awk '{print $2}' | xargs -r svn rm --force
+          svn commit -m "Deploy version ${{ env.PLUGIN_VERSION }}" \
+            --username $SVN_USERNAME \
+            --password $SVN_PASSWORD \
+            --no-auth-cache
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
