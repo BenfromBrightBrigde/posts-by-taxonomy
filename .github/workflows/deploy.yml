@@ -18,9 +18,8 @@ jobs:
         run: sudo apt-get install -y subversion
 
       - name: Extract version from plugin file
-        id: version
         run: |
-          VERSION=$(grep -i "Version:" posts-by-taxonomy.php | head -1 | sed 's/.*Version:[[:space:]]*//')
+          VERSION=$(sed -n 's/^ \* Version:[[:space:]]*//p' posts-by-taxonomy.php | head -n1)
           echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Checkout WordPress.org SVN
@@ -38,10 +37,10 @@ jobs:
           rsync -av --delete \
             --exclude='.git*' \
             --exclude='.github/' \
-            --exclude='svn_repo/' \
             --exclude='assets/' \
-            --exclude='README.md' \
             --exclude='.gitignore' \
+            --exclude='README.md' \
+            --exclude='svn_repo/' \
             ./ svn_repo/trunk/
 
       - name: Sync assets folder
