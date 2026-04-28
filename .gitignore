@@ -1,0 +1,28 @@
+# WordPress Plugin Development
+
+# Ignore the WordPress core files
+/wp-*/*
+
+# Ignore the WordPress content directory
+/wp-content/*
+!wp-content/plugins/
+!wp-content/themes/
+!wp-content/uploads/
+
+# Ignore the .htaccess file
+/.htaccess
+
+# Ignore the wp-config.php file
+wp-config.php
+
+# Ignore the debug.log file
+/wp-content/debug.log
+
+# Ignore plugin-specific files and directories
+/plugins/*/node_modules/
+/plugins/*/vendor/
+/plugins/*/package-lock.json
+/plugins/*/composer.lock
+
+# Ignore local environment files
+.env
