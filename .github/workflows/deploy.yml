@@ -34,14 +34,14 @@ jobs:
 
       - name: Sync plugin files to trunk
         run: |
-          rsync -av --delete \
-            --exclude='.git*' \
-            --exclude='.github/' \
-            --exclude='assets/' \
-            --exclude='.gitignore' \
-            --exclude='README.md' \
-            --exclude='svn_repo/' \
-            ./ svn_repo/trunk/
+          rsync -r --exclude='.git*' \
+                --exclude='assets/' \
+                --exclude='.gitignore' \
+                --exclude='README.md' \
+                --exclude='.github/' \
+                --exclude='bbwd-styles.css' \
+                --delete \
+                . svn_repo/trunk/
 
       - name: Sync assets folder
         run: |
