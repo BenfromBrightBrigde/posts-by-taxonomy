@@ -20,7 +20,7 @@ jobs:
       - name: Extract version from plugin file
         id: version
         run: |
-          VERSION=$(grep "^ \* Version:" posts-by-taxonomy.php | awk '{print $2}')
+          VERSION=$(grep -i "Version:" posts-by-taxonomy.php | head -1 | sed 's/.*Version:[[:space:]]*//')
           echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Checkout WordPress.org SVN
@@ -35,7 +35,7 @@ jobs:
 
       - name: Sync plugin files to trunk
         run: |
-          rsync -r -i 2 --exclude='.git*' \
+          rsync -r --exclude='.git*' \
                 --exclude='assets/' \
                 --exclude='.gitignore' \
                 --exclude='README.md' \
