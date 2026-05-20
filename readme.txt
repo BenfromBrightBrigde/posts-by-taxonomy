@@ -64,3 +64,10 @@ Bright Bridge Web is a web development company that specializes in React, Django
 
 = 1.0.0: October 16, 2024 =
 * Birthday of Posts by Taxonomy
+
+= 1.0.2: May 21, 2026 =
+* Resolving custom post type error
+
+= 1.0.3: May 21, 2026 =
+* Resolving missing attribute errors
+* Verify WP 7.0 release
