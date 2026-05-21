@@ -5,7 +5,7 @@
  * @package       POSTSBYTAX
  * @author        Bright Bridge Web
  * @license       gplv2
- * @version       1.0.3
+ * @version       1.0.3 
  *
  * @wordpress-plugin 
  * Plugin Name:   Posts by Taxonomy
@@ -27,7 +27,8 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /*============================================================================================================
- OPTIONAL ATTRIBUTES:
+ 
+OPTIONAL ATTRIBUTES:
  post-type = post type slug that you wish to loop through, Defaults to WP Blog Posts
  taxonomy = slug to the taxonomy you want to use - Defaults to All
  include = include posts by taxonomy name - Defaults to include all
