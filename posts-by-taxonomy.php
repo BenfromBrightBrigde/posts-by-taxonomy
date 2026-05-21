@@ -7,7 +7,7 @@
  * @license       gplv2
  * @version       1.0.3
  *
- * @wordpress-plugin
+ * @wordpress-plugin 
  * Plugin Name:   Posts by Taxonomy
  * Plugin URI:    https://brightbridgeweb.com/custom-plugins/post-by-taxonomy
  * Description:   Display a list separated by any taxonomy via shortcode. Compatible with Search and Filter.
