@@ -74,7 +74,6 @@ function bbwd_PBTD_enqueu_stuff() {
 add_action( 'wp_enqueue_scripts', 'bbwd_PBTD_enqueu_stuff' );
 
 add_shortcode('bbwd-post-display', 'bbwd_PBTD_PostDisplay');
-
 function bbwd_PBTD_PostDisplay($bbwdAtts = ''){
 	$bbwdDisPosts = 'post';
 	$bbwdDisTax = 'category';
