@@ -8,56 +8,57 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
 
       - name: Install SVN
-        run: sudo apt-get install -y subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion rsync
 
-      - name: Extract version from tag
-        id: version
+      - name: Define plugin version
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Checkout WordPress.org SVN
-        run: |
-          svn checkout --depth=immediates "https://plugins.svn.wordpress.org/posts-by-taxonomy/" svn_repo
-          cd svn_repo
-          svn update trunk --set-depth=infinity
-          svn update --set-depth=infinity tags
+      - name: Checkout WordPress.org SVN repository
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-
-      - name: Copy files to SVN trunk
         run: |
-          # Copy new files
-          cp posts-by-taxonomy.php svn_repo/trunk/
-          cp readme.txt svn_repo/trunk/
-          cp license.txt svn_repo/trunk/
-          cp index.php svn_repo/trunk/
-          
-          # Copy assets if they exist
-          if [ -d "assets" ]; then
-            mkdir -p svn_repo/assets
-            cp -r assets/* svn_repo/assets/ 2>/dev/null || true
-          fi
-          
-          # Add all new files
-          cd svn_repo
-          svn add --force . --auto-props --parents -q 2>/dev/null || true
+          svn checkout \
+            --non-interactive \
+            --trust-server-cert \
+            --username "$SVN_USERNAME" \
+            --password "$SVN_PASSWORD" \
+            https://plugins.svn.wordpress.org/posts-by-taxonomy/ svn_repo
 
-      - name: Create SVN tag
+      - name: Clean SVN trunk
         run: |
-          cd svn_repo
-          svn cp trunk tags/${{ env.PLUGIN_VERSION }}
+          find svn_repo/trunk -mindepth 1 -maxdepth 1 \
+            ! -name '.svn' \
+            -exec rm -rf {} +
 
-      - name: Commit to SVN
+      - name: Sync plugin files to SVN trunk
         run: |
-          cd svn_repo
-          svn commit -m "Deploy version ${{ env.PLUGIN_VERSION }}" \
-            --username ${{ secrets.SVN_USERNAME }} \
-            --password ${{ secrets.SVN_PASSWORD }} \
-            --no-auth-cache
+          rsync -av --delete \
+            --exclude='.git*' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='vendor/bin' \
+            --exclude='svn_repo' \
+            --exclude='*.log' \
+            --exclude='.DS_Store' \
+            ./ svn_repo/trunk/ || [[ $? == 24 ]]
+
+      - name: Remove unwanted files from SVN
+        run: |
+            -m "Deploy version ${PLUGIN_VERSION}"
