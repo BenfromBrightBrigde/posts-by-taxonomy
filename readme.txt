@@ -71,3 +71,7 @@ Bright Bridge Web is a web development company that specializes in React, Django
 = 1.0.3: May 21, 2026 =
 * Resolving missing attribute errors
 * Verify WP 7.0 release
+
+= 1.0.4: May 21, 2026 =
+* Code scrub
+* Verify automated release system

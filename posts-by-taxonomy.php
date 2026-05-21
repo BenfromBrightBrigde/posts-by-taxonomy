@@ -116,7 +116,6 @@ function bbwd_PBTD_PostDisplay($bbwdAtts = ''){
 							'hide_empty' => false,
 							'exclude' => 'all'
 						]);
-
 		$testFPInt = 0;
 		$testCPInt = 0;
 		foreach($bbwdAllterms as $bbwdSTerm){
