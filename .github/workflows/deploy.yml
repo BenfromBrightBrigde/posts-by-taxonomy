@@ -33,11 +33,6 @@ jobs:
 
       - name: Copy files to SVN trunk
         run: |
-          # Remove old trunk content
-          cd svn_repo/trunk
-          svn status | grep '^!' | awk '{print $2}' | xargs -r svn rm --force
-          cd ../..
-          
           # Copy new files
           cp posts-by-taxonomy.php svn_repo/trunk/
           cp readme.txt svn_repo/trunk/
@@ -46,6 +41,7 @@ jobs:
           
           # Copy assets if they exist
           if [ -d "assets" ]; then
+            mkdir -p svn_repo/assets
             cp -r assets/* svn_repo/assets/ 2>/dev/null || true
           fi
           
