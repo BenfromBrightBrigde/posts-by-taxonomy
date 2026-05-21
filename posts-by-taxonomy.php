@@ -5,7 +5,7 @@
  * @package       POSTSBYTAX
  * @author        Bright Bridge Web
  * @license       gplv2
- * @version       1.0.3
+ * @version       1.0.4
  *
  * @wordpress-plugin
  * Plugin Name:   Posts by Taxonomy
