@@ -20,10 +20,12 @@ jobs:
         with:
           php-version: '8.2'
 
-      - name: Install SVN
-        run: sudo apt-get update && sudo apt-get install -y subversion rsync
+      - name: Install SVN + rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y subversion rsync
 
-      - name: Define plugin version
+      - name: Set plugin version
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
@@ -53,12 +55,68 @@ jobs:
             --exclude='.github' \
             --exclude='node_modules' \
             --exclude='tests' \
-            --exclude='vendor/bin' \
             --exclude='svn_repo' \
+            --exclude='vendor/bin' \
             --exclude='*.log' \
             --exclude='.DS_Store' \
             ./ svn_repo/trunk/ || [[ $? == 24 ]]
 
-      - name: Remove unwanted files from SVN
+      - name: Remove deleted files from SVN
         run: |
+          cd svn_repo
+
+          svn status | grep '^!' | awk '{print $2}' | xargs -r svn delete
+
+      - name: Add new files to SVN
+        run: |
+          cd svn_repo
+
+          svn add trunk/* \
+            --force \
+            --auto-props \
+            --parents \
+            --depth infinity \
+            -q || true
+
+      - name: Create SVN tag
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          cd svn_repo
+
+          if svn ls \
+            https://plugins.svn.wordpress.org/posts-by-taxonomy/tags/${PLUGIN_VERSION} \
+            --non-interactive \
+            --trust-server-cert \
+            --username "$SVN_USERNAME" \
+            --password "$SVN_PASSWORD" > /dev/null 2>&1; then
+
+            echo "Tag already exists. Removing existing tag."
+
+            svn delete \
+              --non-interactive \
+              --trust-server-cert \
+              --username "$SVN_USERNAME" \
+              --password "$SVN_PASSWORD" \
+              https://plugins.svn.wordpress.org/posts-by-taxonomy/tags/${PLUGIN_VERSION} \
+              -m "Removing existing tag ${PLUGIN_VERSION}"
+          fi
+
+          svn copy \
+            trunk \
+            tags/${PLUGIN_VERSION}
+
+      - name: Commit changes to WordPress.org SVN
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          cd svn_repo
+
+          svn commit \
+            --non-interactive \
+            --trust-server-cert \
+            --username "$SVN_USERNAME" \
+            --password "$SVN_PASSWORD" \
             -m "Deploy version ${PLUGIN_VERSION}"
