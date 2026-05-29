@@ -5,13 +5,13 @@
  * @package       POSTSBYTAX
  * @author        Bright Bridge Web
  * @license       gplv2
- * @version       1.0.4 
+ * @version       1.0.5 
  *
  * @wordpress-plugin 
  * Plugin Name:   Posts by Taxonomy
  * Plugin URI:    https://brightbridgeweb.com/custom-plugins/post-by-taxonomy
  * Description:   Display a list separated by any taxonomy via shortcode. Compatible with Search and Filter.
- * Version:       1.0.4
+ * Version:       1.0.5
  * Author:        Bright Bridge Web
  * Author URI:    https://brightbridgeweb.com
  * Text Domain:   posts-by-taxonomy

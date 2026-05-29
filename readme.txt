@@ -7,7 +7,7 @@ Tags: custom post display, custom taxonomy, order by taxonomy
 Requires at least: 6.0.0
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,3 +74,6 @@ Bright Bridge Web is a web development company that specializes in React, Django
 
 = 1.0.4: May 21, 2026 =
 * Updating stable tag to verify deployment automation
+
+= 1.0.4: May 21, 2026 =
+* Resolving display bug
