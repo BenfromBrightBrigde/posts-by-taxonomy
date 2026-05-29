@@ -109,6 +109,7 @@ function bbwd_PBTD_PostDisplay($bbwdAtts = ''){
 			$bbwdExcludes = explode(',', $bbwdSAt);
 			break;
 		}
+	}
 		$bbwdExFillHTML .= "$bbwdSandFShort<div id='bbwd-post-master'>";
 		$bbwdSanPosts = array();
 		$bbwdAllterms = get_terms([
@@ -169,6 +170,5 @@ function bbwd_PBTD_PostDisplay($bbwdAtts = ''){
 			echo "<p>".esc_html($testFPInt)." Total $bbwdDisPosts returned</p>";
 			echo "<p>".esc_html($testCPInt)." Total $bbwdDisPosts count currently displayed</p>";
 		}
-	}
     return $bbwdExFillHTML;
 }
